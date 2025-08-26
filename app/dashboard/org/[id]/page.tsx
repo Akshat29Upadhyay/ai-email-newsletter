@@ -40,9 +40,12 @@ export default async function OrgPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="max-w-5xl mx-auto p-4 h-[90svh]">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">{org.name}</h1>
-        <p className="text-sm text-gray-600">Organization ID: {org.id}</p>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{org.name}</h1>
+          <p className="text-sm text-gray-600">Organization ID: {org.id}</p>
+        </div>
+        <Link href={`/dashboard/org/${org.id}/compose`} className="px-4 py-2 rounded-md bg-black text-white text-sm font-medium hover:opacity-90 transition">Send new email</Link>
       </div>
 
       <section className="grid gap-6 md:grid-cols-2">
