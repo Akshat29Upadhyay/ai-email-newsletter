@@ -1,6 +1,12 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 
+type OrganizationWithCount = {
+  id: string
+  name: string
+  subscribers: { count: number }[]
+}
+
 export default async function Home() {
   const supabase = await createClient()
   const { data } = await supabase.auth.getUser()
@@ -11,7 +17,7 @@ export default async function Home() {
     .select('id, name, subscribers(count)')
     .order('created_at', { ascending: false })
 
-  const organizations = orgsData ?? []
+  const organizations = (orgsData as OrganizationWithCount[]) ?? []
 
   return (
     <div className="min-h-[90svh] p-6">
@@ -37,7 +43,7 @@ export default async function Home() {
               <div className="h-full flex items-center justify-center text-sm text-gray-600 p-4">No organizations yet.</div>
             ) : (
               <ul className="divide-y divide-gray-100">
-                {organizations.map((org: any) => {
+                {organizations.map((org: OrganizationWithCount) => {
                   const subscriberCount = (org.subscribers?.[0]?.count as number) ?? 0
                   return (
                     <li key={org.id} className="p-4 flex items-center justify-between gap-3">
