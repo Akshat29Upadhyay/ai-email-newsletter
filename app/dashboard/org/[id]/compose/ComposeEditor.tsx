@@ -26,8 +26,9 @@ export default function ComposeEditor({ orgId, action }: { orgId: string, action
       } else {
         throw new Error('Empty response from AI')
       }
-    } catch (e: any) {
-      setError(e?.message || 'Something went wrong')
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Something went wrong'
+      setError(message)
     } finally {
       setLoading(false)
     }

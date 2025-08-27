@@ -38,7 +38,8 @@ export async function POST(request: Request) {
     const data = await res.json()
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
     return NextResponse.json({ html: text })
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || 'Unknown error' }, { status: 500 })
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 } 
