@@ -14,10 +14,10 @@ export async function sendEmail(formData: FormData) {
 
   const organizationId = (formData.get('orgId') as string) ?? ''
   const subject = ((formData.get('subject') as string) || '').trim()
-  const html = ((formData.get('html') as string) || '').trim()
+  const baseHtml = ((formData.get('html') as string) || '').trim()
   if (!organizationId) throw new Error('Missing organization id')
   if (!subject) throw new Error('Subject is required')
-  if (!html) throw new Error('HTML content is required')
+  if (!baseHtml) throw new Error('HTML content is required')
 
   // Verify ownership
   const { data: org, error: orgError } = await supabase
@@ -41,35 +41,54 @@ export async function sendEmail(formData: FormData) {
     .filter((e): e is string => typeof e === 'string' && e.length > 0)
 
   const resendApiKey = process.env.RESEND_API_KEY
-  // Safe default for development: Resend onboarding domain (no domain verification needed)
   const configuredFrom = process.env.RESEND_FROM_EMAIL
   const defaultFrom = 'Acme <onboarding@resend.dev>'
   const fromEmail = configuredFrom && !configuredFrom.endsWith('@example.com') ? configuredFrom : defaultFrom
-
   const fallbackTo = process.env.RESEND_FALLBACK_TO || process.env.NEWSLETTER_TEST_EMAIL
 
   if (!resendApiKey) throw new Error('Missing RESEND_API_KEY')
 
+  // Build robust absolute base URL
+  const envSite = process.env.NEXT_PUBLIC_SITE_URL?.trim() || ''
+  const vercelUrl = process.env.VERCEL_URL?.trim() || ''
+  const normalizedBase = envSite
+    ? envSite.replace(/\/$/, '')
+    : vercelUrl
+    ? `https://${vercelUrl.replace(/\/$/, '')}`
+    : 'http://localhost:3000'
+
+  function withUnsubscribeFooter(html: string, email: string) {
+    const unsubscribeUrl = `${normalizedBase}/api/unsubscribe?org=${encodeURIComponent(organizationId)}&email=${encodeURIComponent(email)}`
+    const footer = `\n<hr style="margin-top:24px;margin-bottom:12px;border:none;border-top:1px solid #e5e7eb;"/>\n<p style="color:#6b7280;font-size:12px;line-height:1.5;">If you no longer wish to receive these emails, you can <a href="${unsubscribeUrl}">unsubscribe here</a>.</p>`
+    return html + footer
+  }
+
   async function send(toList: string[]) {
+    if (toList.length === 1) {
+      const personalizedHtml = withUnsubscribeFooter(baseHtml, toList[0])
+      return fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ from: fromEmail, to: toList, subject, html: personalizedHtml }),
+      })
+    }
+    const genericHtml = withUnsubscribeFooter(baseHtml, '')
     return fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: toList,
-        subject,
-        html,
-      }),
+      body: JSON.stringify({ from: fromEmail, to: toList, subject, html: genericHtml }),
     })
   }
 
   let finalTo: string[] = recipientEmails
   let usedFallback = false
 
-  // If there are no recipients, try fallback immediately
   if (finalTo.length === 0) {
     if (!fallbackTo) {
       throw new Error('No subscribed recipients and RESEND_FALLBACK_TO not set')
@@ -78,10 +97,8 @@ export async function sendEmail(formData: FormData) {
     usedFallback = true
   }
 
-  // Try sending to intended recipients
   let response = await send(finalTo)
 
-  // If failed and we weren't already using fallback, try fallback once
   if (!response.ok && !usedFallback && fallbackTo) {
     finalTo = [fallbackTo]
     usedFallback = true
@@ -97,11 +114,10 @@ export async function sendEmail(formData: FormData) {
     throw new Error(`Resend error: ${message}`)
   }
 
-  // Record email in DB
   await supabase.from('emails').insert({
     organization_id: organizationId,
     subject,
-    body: html,
+    body: baseHtml,
     created_by: user.id,
     status: 'sent',
   })
