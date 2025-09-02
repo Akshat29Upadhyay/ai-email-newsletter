@@ -29,16 +29,20 @@ export default async function Home() {
 
         <div className="flex items-center gap-3 flex-wrap">
           {user && (
-            <Link href="/dashboard" className="px-4 py-2 rounded-md bg-black text-white text-sm font-medium hover:opacity-90 transition">
+            <Link href="/dashboard" className="px-4 py-2 rounded-md bg-sky-900 hover:bg-black text-white text-sm font-semibold shadow-sm transition">
               Go to Dashboard
             </Link>
           )}
-          <Link href="/login" className="text-sm underline">Sign up to start your own newsletter</Link>
+          {!user && (
+            <Link href="/login" className="px-4 py-2 rounded-md bg-sky-900 hover:bg-black text-white text-sm font-semibold shadow-sm transition">
+            Sign up to start your own newsletter
+          </Link>
+          )}
         </div>
 
         <section>
           <h2 className="text-lg font-semibold mb-2">Explore Newsletters</h2>
-          <div className="border border-gray-200 rounded-lg bg-white shadow-sm h-64 overflow-y-auto">
+          <div className="border border-gray-200 rounded-lg bg-white shadow-sm h-84 overflow-y-auto">
             {organizations.length === 0 ? (
               <div className="h-full flex items-center justify-center text-sm text-gray-600 p-4">No organizations yet.</div>
             ) : (
@@ -52,7 +56,9 @@ export default async function Home() {
                         <p className="text-xs text-gray-500 truncate">{subscriberCount} subscribers</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Link href={`/subscribe/${org.id}`} className="px-3 py-1.5 rounded-md border border-gray-300 text-sm hover:bg-gray-50 transition">Subscribe</Link>
+                        <Link href={`/subscribe/${org.id}`} className="px-3 py-1.5 rounded-md bg-sky-500 hover:bg-sky-700 text-white text-sm font-bold transition">
+                          Subscribe
+                        </Link>
                       </div>
                     </li>
                   )

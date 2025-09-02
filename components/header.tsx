@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { createClient as createServerClient } from "@/lib/supabase/server"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import UserMenu from "@/components/user-menu"
 
 export default async function Header() {
   const supabase = await createServerClient()
@@ -9,7 +9,7 @@ export default async function Header() {
   } = await supabase.auth.getUser()
 
   return (
-    <header className="flex items-center justify-between p-4 border-b border-gray-200">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
       <div className="flex items-center gap-2">
         <h1 className="text-lg font-semibold">TechForum</h1>
       </div>
@@ -25,13 +25,7 @@ export default async function Header() {
             </Link>
           </>
         ) : (
-          <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarFallback>
-                {user.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+          <UserMenu email={user.email ?? null} />
         )}
       </nav>
     </header>

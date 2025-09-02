@@ -15,7 +15,7 @@ export default async function PrivatePage() {
   const organizations = await listOrganizations()
 
   return (
-    <div className="max-w-5xl mx-auto p-4 h-[90svh]">
+    <div className="max-w-5xl mx-auto p-4 min-h-[80svh]">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-sm text-gray-600">Welcome, {data.user.email}</p>
@@ -24,25 +24,27 @@ export default async function PrivatePage() {
       <section className="grid gap-6 md:grid-cols-2">
         <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
           <h2 className="text-lg font-medium mb-3">Your Newsletters</h2>
-          {organizations.length === 0 ? (
-            <p className="text-sm text-gray-600">No newsletters yet. Create one to get started.</p>
-          ) : (
-            <ul className="divide-y divide-gray-100">
-              {organizations.map((org) => (
-                <li key={org.id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{org.name}</p>
-                    <p className="text-xs text-gray-500">ID: {org.id}</p>
-                  </div>
-                  <Link href={`/dashboard/org/${org.id}`} className="text-sm text-black underline">Open</Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="max-h-64 overflow-y-auto">
+            {organizations.length === 0 ? (
+              <p className="text-sm text-gray-600 p-2">No newsletters yet. Create one to get started.</p>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {organizations.map((org) => (
+                  <li key={org.id} className="py-3 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{org.name}</p>
+                      <p className="text-xs text-gray-500">ID: {org.id}</p>
+                    </div>
+                    <Link href={`/dashboard/org/${org.id}`} className="text-sm text-black underline">Open</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-          <h2 className="text-lg font-medium mb-3">Create Newsletter</h2>
+          <h2 className="text-lg font-medium mb-3">Create Organization</h2>
           <form action={createOrganization} className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="name" className="text-sm font-medium text-gray-700">Name</label>
@@ -53,14 +55,7 @@ export default async function PrivatePage() {
         </div>
       </section>
 
-      <section className="mt-8 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-        <h2 className="text-lg font-medium mb-2">Inside an Newsletter (MVP placeholders)</h2>
-        <ul className="list-disc list-inside text-sm text-gray-700">
-          <li>View subscribers list</li>
-          <li>Add subscriber</li>
-          <li>Compose and send email</li>
-        </ul>
-      </section>
+      
     </div>
   )
 }

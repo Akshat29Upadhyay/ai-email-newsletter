@@ -46,8 +46,9 @@ export default function ComposeEditor({ orgId, action }: { orgId: string, action
             type="text"
             required
             value={subject}
+            placeholder="e.g., Your newsletter subject"
             onChange={(e) => setSubject(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
@@ -60,9 +61,9 @@ export default function ComposeEditor({ orgId, action }: { orgId: string, action
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="e.g., Make it more friendly and add a CTA"
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="flex-1 rounded-md border border-gray-300 px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
-            <button type="button" onClick={applyAI} disabled={loading} className="px-3 py-2 rounded-md border border-gray-300 text-sm hover:bg-gray-50 transition min-w-[110px]">
+            <button type="button" onClick={applyAI} disabled={loading} className="px-3 py-2 rounded-md border border-gray-300 bg-white text-sm hover:bg-gray-100 transition min-w-[110px]">
               {loading ? 'Thinking…' : 'Apply AI'}
             </button>
           </div>
@@ -77,7 +78,7 @@ export default function ComposeEditor({ orgId, action }: { orgId: string, action
             rows={16}
             value={html}
             onChange={(e) => setHtml(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-black"
             placeholder="<h1>Hello</h1>\n<p>Welcome to our newsletter.</p>"
           />
         </div>
